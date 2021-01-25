@@ -92,6 +92,7 @@ components:
         - type
         - name
         - date
+        - registrationOpen
     SealedEventModel:
       allOf:
         - $ref: '#/components/schemas/BaseEventModel'
@@ -111,6 +112,7 @@ components:
           required:
             - constraints
     ConstraintModel:
+      # This constraint model wasn't thought through very much, but something generic like this would be nice
       type: object
       properties:
         name:

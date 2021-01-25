@@ -1,6 +1,6 @@
 ## Sealed helper API
 
-The API documentation is written using the Open API 3 [specification](https://google.com).  
+The API documentation is written using the Open API 3 [specification](https://swagger.io/docs/specification/about/).  
 
 ## Helper scripts
 
