@@ -1,0 +1,206 @@
+openapi: 3.0.0
+info:
+  title: Events helper API
+  version: 0.0.1
+tags:
+  - name: User API
+    description: Registering for events and making actions in event environment, like generating a deck for sealed
+  - name: Admin API
+    description: Event constraints and registration manipulation. TODO for the future
+paths:
+  /events:
+    get:
+      tags:
+        - User API
+      security:
+        - ApiKey: []
+      summary: Current events list
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      # oneOf: [SealedEventModel, AuctionEventModel, ...] in the future
+                      $ref: '#/components/schemas/SealedEventModel'
+                required:
+                  - events
+        401:
+          $ref: '#/components/responses/Unauthorized'
+  /events/sealed/{eventId}/register:
+    post:
+      tags:
+        - User API
+      security:
+        - ApiKey: []
+      summary: Register for sealed event
+      description: |
+        This endpoint should register a user for a sealed event and generate a deck for him.
+        The user should provide a passphrase (secret), so that only he can see the generated sealed deck, (otherwise
+        other uses could "cheat" by accessing it with his username, which may be easily guessable). The first person
+        with a given nickname should be registered and receive a deck, other users
+        trying with that nickname and other passphrase should encounter a 409 error.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SealedEventRegistrationRequest'
+      responses:
+        201:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SealedEventRegistrationSuccessful'
+        409:
+          description: User with given nickname already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+
+components:
+  schemas:
+    BaseEventModel:
+      type: object
+      properties:
+        id:
+          type: string
+          example: ae4b93fea
+        type:
+          type: string
+          enum: ['sealed']
+        name:
+          type: string
+          example: Liga Mrocznych Pływów Sealed
+        date:
+          type: string
+          format: date-time
+          example: '2020-02-06T17:00:00.000Z'
+        registrationOpen:
+          type: boolean
+      required:
+        - id
+        - type
+        - name
+        - date
+    SealedEventModel:
+      allOf:
+        - $ref: '#/components/schemas/BaseEventModel'
+        - type: object
+          properties:
+            constraints:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConstraintModel'
+              example:
+                - name: 'sas'
+                  operator: 'eq'
+                  value: 70
+                - name: 'house'
+                  operator: 'eq'
+                  value: 'dis'
+          required:
+            - constraints
+    ConstraintModel:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'sas'
+        operator:
+          type: string
+          example: 'eq'
+        value:
+          type: number
+          example: 70
+      required:
+        - name
+        - operator
+        - value
+    BaseEventRegistrationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'kveld123'
+      required:
+        - name
+    SealedEventRegistrationRequest:
+      allOf:
+        - $ref: '#/components/schemas/BaseEventRegistrationRequest'
+        - type: object
+          properties:
+            secret:
+              type: string
+              example: '1234abcd'
+          required:
+            - secret
+    BaseEventRegistrationSuccessful:
+      type: object
+      properties:
+        eventId:
+          type: string
+        type:
+          type: string
+          enum: ['sealed']
+    SealedEventRegistrationSuccessful:
+      allOf:
+        - $ref: '#/components/schemas/BaseEventRegistrationSuccessful'
+        - type: object
+          properties:
+            generatedDeck:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: 'Rhodes, the Crook of Oakmere'
+                dokLink:
+                  type: string
+                  example: 'https://decksofkeyforge.com/decks/6806c0a4-c052-4a64-aa54-cbe0a22e9c98'
+                # Stuff like houses, sas etc. for nice frontend in the future
+              required:
+                - name
+                - dokLink
+          required:
+            - generatedDeck
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+          example: 'already-registered'
+        message:
+          type: string
+          example: 'User kveld already registered for this event'
+          description: Developer friendly message
+        errorData:
+          type: object
+          description: Additional data, depending on error code
+          example:
+            name: 'kveld'
+  responses:
+    Unauthorized:
+      description: Invalid authorization
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 'unauthorized'
+            message: 'Invalid api key'
+            errorData: {}
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: A frontend application API access key. Used so dumb bots don't spam the server
