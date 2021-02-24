@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using SealedHelperServer.DatabaseControllers;
 
-namespace SealedHelperServer.Models
+namespace SealedHelperServer.Controllers
 {
     public abstract class ApiResponse
     {

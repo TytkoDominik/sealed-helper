@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using SealedHelperServer.DatabaseControllers;
 using SealedHelperServer.Models;
 
@@ -15,7 +17,7 @@ namespace SealedHelperServer.Controllers
             get { return _databaseController ??= new PlayerDatabaseController(); }
         }
         
-        [HttpGet]
+        [HttpPost]
         public ActionResult GetPlayerData([FromBody] UserData userData)
         {
             var databaseResponse = DatabaseController.GetAllPlayers(userData);
@@ -27,7 +29,7 @@ namespace SealedHelperServer.Controllers
 
             if (databaseResponse is WrongSecretResponse)
             {
-                return Unauthorized(new ErrorResponse
+                return Accepted(new ErrorResponse
                 {
                     Code = "unauthorized",
                     Message = "Username and secret does not match, or the user doesn't exist",
@@ -35,7 +37,7 @@ namespace SealedHelperServer.Controllers
                 });
             }
             
-            return BadRequest(new ErrorResponse
+            return Accepted(new ErrorResponse
             {
                 Code = "unknown-error",
                 Message = "Something bad happened here :(",

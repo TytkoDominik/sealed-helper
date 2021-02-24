@@ -12,11 +12,7 @@ namespace SealedHelperServer.DatabaseControllers
         {
             var context = new DeckContext();
             var decks = context.Decks;
-            var rawHouseDis = (int) HouseType.Dis;
-
-            var queryResult = decks.Where(d => 
-                (d.House_0 == rawHouseDis || d.House_1 == rawHouseDis || d.House_2 == rawHouseDis) 
-                && d.Sas == 70).ToList();
+            var queryResult = decks.ToList();
 
             Deck deck;
 

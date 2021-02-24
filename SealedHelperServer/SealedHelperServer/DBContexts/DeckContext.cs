@@ -6,7 +6,6 @@ namespace SealedHelperServer.DBContexts
     public class DeckContext : DbContext
     {
         public DbSet<Deck> Decks { get; set; }
-        public DbSet<Card> Cards { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

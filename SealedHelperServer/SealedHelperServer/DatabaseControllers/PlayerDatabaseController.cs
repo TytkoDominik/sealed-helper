@@ -53,7 +53,12 @@ namespace SealedHelperServer.DatabaseControllers
 
             var player = playersCollection.AsQueryable().FirstOrDefault(p => p.Name == playerName);
 
-            if (player == null || player.Secret != secret)
+            if (player == null)
+            {
+                return new NoSuchPlayerResponse();
+            }
+            
+            if (player.Secret != secret)
             {
                 return new WrongSecretResponse();
             }
@@ -82,7 +87,7 @@ namespace SealedHelperServer.DatabaseControllers
                 Name = playerName,
                 Secret = secret,
                 Deck = deck.Name,
-                DeckLink = "https://decksofkeyforge.com/decks/" + deck.DeckId
+                DeckLink = deck.DoKLink
             };
             
             playersCollection.InsertOneAsync(newPlayer);

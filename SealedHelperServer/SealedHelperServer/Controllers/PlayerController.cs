@@ -1,5 +1,6 @@
-using System.Net;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
 using SealedHelperServer.DatabaseControllers;
 using SealedHelperServer.Models;
 
@@ -16,14 +17,13 @@ namespace SealedHelperServer.Controllers
             get { return _databaseController ??= new PlayerDatabaseController(); }
         }
         
-        [HttpPost("register")]
-        public ActionResult RegisterNewPlayer([FromBody] UserData userData)
+        public ActionResult RegisterNewPlayer(UserData userData)
         {
             var databaseResponse = DatabaseController.AddPlayer(userData);
 
             if (databaseResponse is PlayerAlreadyAddedResponse)
             {
-                return Conflict(new ErrorResponse
+                return Accepted(new ErrorResponse
                 {
                     Code = "already-registered",
                     Message = "This username is already registered for this event.",
@@ -36,7 +36,7 @@ namespace SealedHelperServer.Controllers
                 return Accepted(new PlayerDeckResponse((PlayerDataResponse) databaseResponse));
             }
 
-            return BadRequest(new ErrorResponse
+            return Accepted(new ErrorResponse
             {
                 Code = "unknown-error",
                 Message = "Something bad happened here :(",
@@ -44,7 +44,7 @@ namespace SealedHelperServer.Controllers
             });
         }
 
-        [HttpGet("player")]
+        [HttpPost("player")]
         public ActionResult GetPlayerData([FromBody] UserData userData)
         {
             var databaseResponse = DatabaseController.GetPlayer(userData);
@@ -54,9 +54,14 @@ namespace SealedHelperServer.Controllers
                 return Accepted(new PlayerDeckResponse((PlayerDataResponse) databaseResponse));
             }
 
+            if (databaseResponse is NoSuchPlayerResponse)
+            {
+                return RegisterNewPlayer(userData);
+            }
+
             if (databaseResponse is WrongSecretResponse)
             {
-                return Unauthorized(new ErrorResponse
+                return Accepted(new ErrorResponse
                 {
                     Code = "unauthorized",
                     Message = "Username and secret does not match, or the user doesn't exist",
@@ -64,7 +69,7 @@ namespace SealedHelperServer.Controllers
                 });
             }
             
-            return BadRequest(new ErrorResponse
+            return Accepted(new ErrorResponse
             {
                 Code = "unknown-error",
                 Message = "Something bad happened here :(",
