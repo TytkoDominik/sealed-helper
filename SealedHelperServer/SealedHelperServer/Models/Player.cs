@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace SealedHelperServer.Models
 {
+    [BsonIgnoreExtraElements]
     public class Player
     {
         [BsonRepresentation(BsonType.ObjectId)]
@@ -11,5 +12,6 @@ namespace SealedHelperServer.Models
         public string Secret { get; set; }
         public string Deck { get; set; }
         public string DeckLink { get; set; }
+        public int RerollCount { get; set; }
     }
 }

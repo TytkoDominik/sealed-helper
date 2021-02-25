@@ -8,8 +8,13 @@ namespace SealedHelperServer
     {
         public static void Main(string[] args)
         {
-            new DeckDataImporter().ImportDeckData();
-           // CreateHostBuilder(args).Build().Run();
+            /*var deckImporter = new DeckDataImporter();
+            deckImporter.ImportDeckData("cota");
+            deckImporter.ImportDeckData("aoa");
+            deckImporter.ImportDeckData("wc");
+            deckImporter.ImportDeckData("mm");*/
+            
+            CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

@@ -8,12 +8,14 @@ namespace SealedHelperServer.Controllers
 
     public class PlayerDeckResponse : ApiResponse
     {
-        public string Name { get; set; }
-        public string EventId { get; set; }
-        public string Type { get; set; }
-        public DeckData GeneratedDeck { get; set; }
+        public string Name { get; }
+        public string EventId { get; }
+        public string Type { get; }
+        public DeckData GeneratedDeck { get; }
+        public string RerollDesc { get; }
+        public bool RerollActive { get;  }
 
-        public PlayerDeckResponse( PlayerDataResponse playerData)
+        public PlayerDeckResponse(PlayerDataResponse playerData, bool rerollSuspended)
         {
             Name = playerData.Player;
             EventId = "SAS70Sealed";
@@ -24,6 +26,9 @@ namespace SealedHelperServer.Controllers
                 Name = playerData.Deck,
                 DokLink = playerData.Link
             };
+
+            RerollActive = rerollSuspended || playerData.RerollCount <= 0;
+            RerollDesc = rerollSuspended ? "Rerolls disabled" : $"Reroll deck ({playerData.RerollCount})";
         }
     }
 

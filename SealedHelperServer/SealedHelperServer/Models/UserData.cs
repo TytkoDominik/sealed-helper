@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace SealedHelperServer.Models
 {
+    [BsonIgnoreExtraElements]
     public class UserData
     {
         [BsonRepresentation(BsonType.ObjectId)]

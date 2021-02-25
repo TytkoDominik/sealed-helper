@@ -9,15 +9,17 @@ namespace SealedHelperServer.DatabaseControllers
 
     public class PlayerDataResponse : DatabaseResponse
     {
-        public string Player { get; set; }
-        public string Deck { get; set; }
-        public string Link { get; set; }
+        public string Player { get; }
+        public string Deck { get; }
+        public string Link { get; }
+        public int RerollCount { get; }
 
         public PlayerDataResponse(Player player)
         {
             Player = player.Name;
             Deck = player.Deck;
             Link = player.DeckLink;
+            RerollCount = player.RerollCount;
         }
     }
 
@@ -36,6 +38,14 @@ namespace SealedHelperServer.DatabaseControllers
     }
 
     public class WrongSecretResponse : DatabaseResponse
+    {
+    }
+
+    public class DecksAddedResponse : DatabaseResponse
+    {
+    }
+
+    public class NotEnoughRerollsResponse : DatabaseResponse
     {
     }
 }

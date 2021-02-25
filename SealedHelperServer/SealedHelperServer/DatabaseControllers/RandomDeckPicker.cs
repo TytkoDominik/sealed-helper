@@ -1,32 +1,27 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using SealedHelperServer.DBContexts;
 using SealedHelperServer.Models;
 
 namespace SealedHelperServer.DatabaseControllers
 {
     public class RandomDeckPicker
     {
-        public Deck GetRandomDeck(List<string> alreadyUsedDecks)
+        public Deck GetRandomDeck()
         {
-            var context = new DeckContext();
-            var decks = context.Decks;
-            var queryResult = decks.ToList();
-
-            Deck deck;
-
-            do
-            {
-                var rand = new Random();
-                int index = rand.Next(queryResult.Count);
-                deck = queryResult[index];
-            } 
-            while 
-                (alreadyUsedDecks.Contains(deck.Name));
+            var playerDatabaseController = new PlayerDatabaseController();
+            var metadata = playerDatabaseController.GetMetadata();
+            var random = new Random();
             
+            var rand = random.Next(metadata.DecksCount);
 
-            return deck;
+            while (metadata.UsedDeckIndexes.Contains(rand))
+            {
+                rand = random.Next(metadata.DecksCount);
+            }
+
+            metadata.UsedDeckIndexes.Add(rand);
+            playerDatabaseController.SetMetadata(metadata);
+            
+            return playerDatabaseController.GetDeck(rand);
         }
     }
 }
